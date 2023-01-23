@@ -251,16 +251,12 @@ class TestDistributionBehavior(support.TempdirManager):
         # make sure --no-user-cfg disables the user cfg file
         assert len(all_files) - 1 == len(files)
 
-    @pytest.mark.skipif(
-        'platform.system() == "Windows"',
-        reason='Windows does not honor chmod 000',
-    )
-    def test_find_config_files_permission_error(self, fake_home):
+    def test_find_config_files_permission_error(self, fake_home, fs):
         """
         Finding config files should not fail when directory is inaccessible.
         """
         fake_home.joinpath(pydistutils_cfg).write_text('')
-        fake_home.chmod(0o000)
+        fs.chmod(fake_home, 0o000, force_unix_mode=True)
         Distribution().find_config_files()
 
 
